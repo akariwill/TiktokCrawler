@@ -11,7 +11,7 @@
 # Preview Tiktok Crawler
 
 <p align="center">
- <img src="https://akariwill.github.io/TiktokCrawler/assets/cli.png/" alt="main" width="100%">
+ <img src="https://github.com/akariwill/TiktokCrawler/blob/main/assets/cli.png" alt="main" width="100%">
  This is a command-line interface (CLI) tool for downloading TikTok videos and retrieving video information.
 </p>
 
