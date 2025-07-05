@@ -1,6 +1,19 @@
-# TikTok Video Downloader CLI
+<div align="center">
+<a href="https://akariwill.github.io/TiktokCrawler/">
+  <img src="https://github.com/akariwill/Otaku/blob/main/assets/images/akari.jpg" alt="logo" width="180" style="border-radius: 50%;"/>
+</a>
+</div>
 
-This is a command-line interface (CLI) tool for downloading TikTok videos and retrieving video information.
+<h1 align="center">
+  <a href="https://akariwill.github.io/TiktokCrawler/">TiktokCrawler - TikTok Video Downloader CLI</a>
+</h1>
+
+# Preview Tiktok Crawler
+
+<p align="center">
+ <img src="https://akariwill.github.io/TiktokCrawler/assets/cli.png/" alt="main" width="100%">
+ This is a command-line interface (CLI) tool for downloading TikTok videos and retrieving video information.
+</p>
 
 ## Features
 
