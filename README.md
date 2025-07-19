@@ -24,31 +24,40 @@
 
 ## Installation
 
+TiktokCrawler can be easily installed using `pip` or `pipx`. `pipx` is recommended for installing Python CLI applications as it installs them into isolated environments and makes them directly available in your shell.
+
 1.  **Prerequisites**:
     -   Python 3.x
     -   `ffmpeg` (required by `yt-dlp` for video processing). Make sure `ffmpeg` is installed and accessible in your system's PATH.
 
-2.  **Clone the repository (if you haven't already)**:
+2.  **Install `pipx` (if you don't have it)**:
     ```bash
-    git clone https://github.com/akariwill/TiktokCrawler.git 
-    cd TiktokCrawler
+    pip install pipx
+    pipx ensurepath
+    ```
+    *Note: You might need to restart your terminal after running `pipx ensurepath` for the changes to take effect.*
+
+3.  **Install TiktokCrawler**:
+
+    **Recommended (using `pipx`)**:
+    ```bash
+    pipx install tiktokcrawler
     ```
 
-3.  **Install dependencies**:
+    **Alternative (using `pip`)**:
     ```bash
-    pip install -r requirements.txt
+    pip install tiktokcrawler
     ```
+    *Note: If you install with `pip`, you might need to manually add Python's user scripts directory to your system's PATH environment variable if the `tiktok-crawler` command is not found.*
 
 ## Usage
 
-This tool uses `typer` for its command-line interface. You can run commands directly from the `app/cli.py` module.
+Once installed, you can run `tiktok-crawler` directly from your terminal.
 
-## Access Command Line Interface
-
-This tool uses `typer` for its command-line interface. You can run commands directly from the `app/cli.py` module.
+### Access Command Line Interface
 
 ```bash
-python -m app.main"
+tiktok-crawler --help
 ```
 
 ### Download a single video
@@ -56,7 +65,7 @@ python -m app.main"
 To download a TikTok video, use the `download` command followed by the video URL:
 
 ```bash
-python -m app.cli download "https://www.tiktok.com/@alalten/video/7401851105526828295?lang=id-ID&q=kaori%20waguri&t=1751721831935"
+tiktok-crawler download "https://www.tiktok.com/@alalten/video/7401851105526828295?lang=id-ID&q=kaori%20waguri&t=1751721831935"
 ```
 
 ### Get video information
@@ -64,7 +73,7 @@ python -m app.cli download "https://www.tiktok.com/@alalten/video/74018511055268
 To get information about a video without downloading it, use the `info` command:
 
 ```bash
-python -m app.cli info "https://www.tiktok.com/@alalten/video/7401851105526828295?lang=id-ID&q=kaori%20waguri&t=1751721831935"
+tiktok-crawler info "https://www.tiktok.com/@alalten/video/7401851105526828295?lang=id-ID&q=kaori%20waguri&t=1751721831935"
 ```
 
 ### Download all videos from a user
@@ -72,7 +81,7 @@ python -m app.cli info "https://www.tiktok.com/@alalten/video/740185110552682829
 To download all publicly available videos from a TikTok user, use the `user-videos` command:
 
 ```bash
-python -m app.cli user-videos "https://www.tiktok.com/@alalten/video/"
+tiktok-crawler user-videos "https://www.tiktok.com/@alalten/video/"
 ```
 
 ### Using a Proxy
@@ -80,9 +89,9 @@ python -m app.cli user-videos "https://www.tiktok.com/@alalten/video/"
 You can specify a proxy for any command using the `--proxy` or `-p` option:
 
 ```bash
-python -m app.cli download "https://www.tiktok.com/@alalten/video/1234567890" --proxy "http://user:pass@host:port"
-python -m app.cli info "https://www.tiktok.com/@alalten/video/1234567890" -p "socks5://127.0.0.1:9050"
-python -m app.cli user-videos "https://www.tiktok.com/@alalten" --proxy "http://your.proxy.com:8080"
+tiktok-crawler download "https://www.tiktok.com/@alalten/video/1234567890" --proxy "http://user:pass@host:port"
+tiktok-crawler info "https://www.tiktok.com/@alalten/video/1234567890" -p "socks5://127.0.0.1:9050"
+tiktok-crawler user-videos "https://www.tiktok.com/@alalten" --proxy "http://your.proxy.com:8080"
 ```
 
 ## Project Structure
@@ -90,17 +99,12 @@ python -m app.cli user-videos "https://www.tiktok.com/@alalten" --proxy "http://
 TiktokCrawler/
 ├── LICENSE
 ├── README.md
-├── requirements.txt
-├── app/
-│   ├── __init__.py
-│   ├── cli.py
-│   ├── downloader.py
-│   ├── main.py
-│   └── __pycache__/
-│       ├── __init__.cpython-313.pyc
-│       ├── cli.cpython-313.pyc
-│       ├── downloader.cpython-313.pyc
-│       └── main.cpython-313.pyc
+├── pyproject.toml
+├── src/
+│   └── TiktokCrawler/
+│       ├── __init__.py
+│       ├── cli.py
+│       └── downloader.py
 └── downloads/
     ├── 7401851105526828295.mp4
     └── 7439977461644840208.mp4
