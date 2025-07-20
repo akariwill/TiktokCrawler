@@ -7,6 +7,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
 from rich.text import Text
+from typer.models import OptionInfo
 
 app = typer.Typer()
 console = Console()
@@ -97,6 +98,9 @@ def main(
     TikTok Video Downloader CLI.
     Enter a TikTok video URL to download.
     """
+    if isinstance(proxy, OptionInfo):
+        proxy = None
+
     today_date = datetime.date.today().strftime("%A, %d %B %Y")
     operating_system = platform.system()
     current_directory = os.getcwd()
