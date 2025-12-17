@@ -7,9 +7,13 @@ from rich.text import Text
 DOWNLOADS_DIR = "downloads"
 console = Console()
 
-def _get_ydl_opts(proxy: str = None, download: bool = True, output_dir: str = DOWNLOADS_DIR):
+def _get_ydl_opts(proxy: str = None, output_template: str = None):
+    if not output_template:
+        output_template = os.path.join(DOWNLOADS_DIR, '%(id)s.%(ext)s')
+
     ydl_opts = {
         'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+        'outtmpl': output_template,
         'noplaylist': True,
         'writedescription': False,
         'writeinfojson': False,
@@ -23,56 +27,48 @@ def _get_ydl_opts(proxy: str = None, download: bool = True, output_dir: str = DO
             'preferedformat': 'mp4',
         }],
     }
-
-    if not download:
-        ydl_opts['simulate'] = True
-        ydl_opts['skip_download'] = True
-
-    if output_dir:
-        ydl_opts['outtmpl'] = os.path.join(output_dir, '%(id)s.%(ext)s')
-
     if proxy:
         ydl_opts['proxy'] = proxy
-
     return ydl_opts
 
-def download_video(url: str, proxy: str = None) -> tuple[bool, str]:
+def download_video_to_temp(url: str, task_id: str, proxy: str = None) -> tuple[bool, str, str]:
     """
-    Mengunduh video TikTok menggunakan yt-dlp.
-    Mengembalikan (True, "Pesan sukses") jika berhasil, atau (False, "Kode kesalahan") jika gagal.
+    Downloads a TikTok video to a temporary file based on the task_id.
+    Returns (True, "filepath", "video_title") on success, or (False, "error_code", None) on failure.
     """
     if not os.path.exists(DOWNLOADS_DIR):
         os.makedirs(DOWNLOADS_DIR)
+    
+    # Define a unique filepath for this task
+    output_template = os.path.join(DOWNLOADS_DIR, f'{task_id}.%(ext)s')
 
     try:
-        console.print(f"Attempting to download video using yt-dlp: {url}")
-        if proxy:
-            console.print(f"Using proxy: {proxy}")
-
-        ydl_opts = _get_ydl_opts(proxy=proxy, download=True)
+        ydl_opts = _get_ydl_opts(proxy=proxy, output_template=output_template)
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
+            info = ydl.extract_info(url, download=True)
             if info:
-                console.print(f"Found video: {info.get('title', 'Unknown Title')}")
-                ydl.download([url])
-                console.print(f"Successfully downloaded: {os.path.join(DOWNLOADS_DIR, info.get('id', '') + '.mp4')}", style="green")
-                return True, "Download successful."
+                # The file has been downloaded, now find its exact name
+                filename = ydl.prepare_filename(info)
+                video_title = info.get('title', 'video')
+                console.print(f"Successfully downloaded to: {filename}", style="green")
+                return True, filename, video_title
             else:
-                msg = "Could not extract video information."
+                msg = "Could not extract video information for download."
                 console.print(msg, style="red")
-                return False, msg
+                return False, msg, None
 
     except yt_dlp.utils.DownloadError as e:
         error_msg = str(e)
         console.print(f"Download failed: {error_msg}", style="red")
         if "Your IP address is blocked" in error_msg or "timed out" in error_msg:
-            return False, "IP_BLOCKED"
-        return False, error_msg
+            return False, "IP_BLOCKED", None
+        return False, error_msg, None
     except Exception as e:
         msg = f"An unexpected error occurred: {e}"
         console.print(msg, style="red")
-        return False, msg
+        return False, msg, None
+
 
 def get_video_info(url: str, proxy: str = None) -> tuple[bool, str]:
     """
@@ -83,7 +79,9 @@ def get_video_info(url: str, proxy: str = None) -> tuple[bool, str]:
         if proxy:
             console.print(f"Using proxy: {proxy}")
 
-        ydl_opts = _get_ydl_opts(proxy=proxy, download=False)
+        ydl_opts = {'quiet': True, 'no_warnings': True, 'ignoreerrors': True, 'simulate': True, 'skip_download': True}
+        if proxy:
+            ydl_opts['proxy'] = proxy
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
@@ -132,7 +130,7 @@ def download_user_videos(user_url: str, proxy: str = None) -> tuple[bool, str]:
         if proxy:
             console.print(f"Using proxy: {proxy}")
 
-        ydl_opts = _get_ydl_opts(proxy=proxy, download=True)
+        ydl_opts = _get_ydl_opts(proxy=proxy)
         ydl_opts['noplaylist'] = False
         ydl_opts['extract_flat'] = True
 

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TiktokCrawler Web</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>TiktokCrawler</h1>
+        <p style="margin-top: -15px; margin-bottom: 25px; color: #666;">Download TikTok videos with ease.</p>
+
+        <form id="download-form" method="post">
+            <input type="text" id="url" name="url" placeholder="Paste a TikTok video URL here..." required>
+            <button id="submit-button" type="submit">Download Video</button>
+        </form>
+
+        <div id="loader" class="loader"></div>
+
+        <div id="result-container"></div>
+    </div>
+
+    <footer>
+        TiktokCrawler Web Interface
+    </footer>
+
+    <script>
+        document.getElementById('download-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+
+            const loader = document.getElementById('loader');
+            const submitButton = document.getElementById('submit-button');
+            const resultContainer = document.getElementById('result-container');
+            
+            let pollingInterval;
+
+            function pollTaskStatus(taskId) {
+                fetch(`/task-status/${taskId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to get task status.');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'complete') {
+                            clearInterval(pollingInterval);
+                            loader.style.display = 'none';
+                            submitButton.disabled = false;
+                            submitButton.textContent = 'Download Video';
+                            resultContainer.innerHTML = `
+                                <div class="message success">Video is ready!</div>
+                                <div class="download-link">
+                                    <a href="/stream-video/${taskId}" download>Click here to Download</a>
+                                </div>
+                            `;
+                        } else if (data.status === 'failed') {
+                            clearInterval(pollingInterval);
+                            loader.style.display = 'none';
+                            submitButton.disabled = false;
+                            submitButton.textContent = 'Download Video';
+                            resultContainer.innerHTML = `<div class="message error">Error: ${data.error}</div>`;
+                        }
+                        // If status is 'processing', do nothing and wait for the next poll
+                    })
+                    .catch(error => {
+                        clearInterval(pollingInterval);
+                        console.error('Polling Error:', error);
+                        loader.style.display = 'none';
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Download Video';
+                        resultContainer.innerHTML = `<div class="message error">${error.message}</div>`;
+                    });
+            }
+
+            // --- Main Execution ---
+            loader.style.display = 'block';
+            submitButton.disabled = true;
+            submitButton.textContent = 'Requesting...';
+            resultContainer.innerHTML = '';
+
+            fetch('/request-download', {
+                method: 'POST',
+                body: new URLSearchParams(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.detail || 'Failed to start download process.'); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.task_id) {
+                    submitButton.textContent = 'Processing...';
+                    resultContainer.innerHTML = `<div class="message">Request received. Preparing your download...</div>`;
+                    pollingInterval = setInterval(() => pollTaskStatus(data.task_id), 3000); // Poll every 3 seconds
+                } else {
+                    throw new Error('Did not receive a valid task ID.');
+                }
+            })
+            .catch(error => {
+                console.error('Request Error:', error);
+                loader.style.display = 'none';
+                submitButton.disabled = false;
+                submitButton.textContent = 'Download Video';
+                resultContainer.innerHTML = `<div class="message error">${error.message}</div>`;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -4,3 +4,7 @@ beautifulsoup4
 playwright
 yt-dlp
 rich
+fastapi
+uvicorn
+Jinja2
+httpx
