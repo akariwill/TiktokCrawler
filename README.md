@@ -5,7 +5,7 @@
 </div>
 
 <h1 align="center">
-  <a href="https://akariwill.github.io/TiktokCrawler/">TiktokCrawler - TikTok Video Downloader CLI</a>
+  <a href="https://akariwill.github.io/TiktokCrawler/">TiktokCrawler - TikTok Video Downloader CLI & Web</a>
 </h1>
 
 # Preview Tiktok Crawler
@@ -13,6 +13,7 @@
 <p align="center">
  <img src="https://github.com/akariwill/TiktokCrawler/blob/main/assets/cli.png" alt="main" width="100%">
  This is a command-line interface (CLI) tool for downloading TikTok videos and retrieving video information.
+ We also provide a web interface for easier access and functionality.
 </p>
 
 ## Features
@@ -21,6 +22,7 @@
 -   Get detailed information about a TikTok video without downloading it.
 -   Download all videos from a specific TikTok user.
 -   Proxy support for all commands.
+-   **Web Interface**: Access download functionality via a web browser.
 
 ## Installation
 
@@ -50,7 +52,7 @@ TiktokCrawler can be easily installed using `pip` or `pipx`. `pipx` is recommend
     ```
     *Note: If you install with `pip`, you might need to manually add Python's user scripts directory to your system's PATH environment variable if the `tiktok-crawler` command is not found.*
 
-## Usage
+## Usage (CLI)
 
 Once installed, you can run `tiktok-crawler` directly from your terminal.
 
@@ -94,6 +96,30 @@ tiktok-crawler info "https://www.tiktok.com/@alalten/video/1234567890" -p "socks
 tiktok-crawler user-videos "https://www.tiktok.com/@alalten" --proxy "http://your.proxy.com:8080"
 ```
 
+## Web Interface
+
+For a more user-friendly experience, TiktokCrawler now includes a web interface.
+
+### Running the Web Interface Locally
+
+1.  **Install Web Dependencies**: Ensure you have installed all dependencies, including `fastapi`, `uvicorn`, and `Jinja2`. If you cloned the repository, these are in `requirements.txt`:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *(Ensure your `venv` is active if you're using one.)*
+
+2.  **Start the Web Server**: Navigate to the root of the project and run:
+    ```bash
+    uvicorn web.main:app --reload
+    ```
+    The web application will typically be accessible at `http://127.0.0.1:8000`. If deployed on a VPS and exposed (e.g., via `ngrok`), it might be accessible at an address like `http://160.25.222.84:8000/`.
+
+3.  **Usage**: Open your web browser, navigate to the provided address, paste a TikTok video URL into the input field, and click "Download Video". The server will process the request in the background, and once ready, a download link will appear.
+
+### Deploying the Web Interface to a VPS
+
+For instructions on how to deploy and run the web interface 24/7 on a Virtual Private Server (VPS) using `ngrok`, please refer to the dedicated `DEPLOYMENT.md` file in the project root.
+
 ## Project Structure
 ```
 TiktokCrawler/
@@ -105,9 +131,15 @@ TiktokCrawler/
 │       ├── __init__.py
 │       ├── cli.py
 │       └── downloader.py
+├── web/
+│   ├── main.py
+│   ├── static/
+│   │   └── style.css
+│   └── templates/
+│       └── index.html
 └── downloads/
     ├── 7401851105526828295.mp4
-    └── 7439977461644840208.mp4
+    └── ...
 ```
 
 ## License
